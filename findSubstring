@@ -1,0 +1,51 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<int> findSubstring(string s, vector<string>& words) {
+        vector<int> ans;
+        if (s.empty() || words.empty()) return ans;
+
+        int wordLen = words[0].size();
+        int k = words.size();
+        int totalLen = wordLen * k;
+
+        unordered_map<string, int> need;
+        for (auto &w : words) need[w]++;
+
+        for (int start = 0; start < wordLen; start++) {
+            unordered_map<string, int> window;
+            int left = start, count = 0;
+
+            for (int right = start; right + wordLen <= s.size(); right += wordLen) {
+                string word = s.substr(right, wordLen);
+
+                if (need.count(word)) {
+                    window[word]++;
+                    count++;
+
+                    // too many of this word → shrink from left
+                    while (window[word] > need[word]) {
+                        string leftWord = s.substr(left, wordLen);
+                        window[leftWord]--;
+                        left += wordLen;
+                        count--;
+                    }
+
+                    // exact match
+                    if (count == k) {
+                        ans.push_back(left);
+                    }
+                } 
+                else {
+                    // invalid word → reset window
+                    window.clear();
+                    count = 0;
+                    left = right + wordLen;
+                }
+            }
+        }
+        return ans;
+    }
+};
